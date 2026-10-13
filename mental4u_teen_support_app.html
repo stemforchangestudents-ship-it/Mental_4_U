@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mental4u - Teen Support App</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- React & ReactDOM CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  
+  <!-- Babel Standalone CDN -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Google Font: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-slate-100 antialiased selection:bg-purple-200 selection:text-purple-900">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const MessageSquare = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    );
+
+    const Plus = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+    );
+
+    const Trash2 = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+      </svg>
+    );
+
+    const ImageIcon = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+      </svg>
+    );
+
+    const Send = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    );
+
+    const Heart = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+    );
+
+    const Shield = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    );
+
+    const Smile = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+        <line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+      </svg>
+    );
+
+    const Sparkles = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+      </svg>
+    );
+
+    const Wind = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/>
+        <path d="M9.6 4.6A2 2 0 1 1 11 8H2"/>
+        <path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
+      </svg>
+    );
+
+    const PhoneCall = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+      </svg>
+    );
+
+    const Volume2 = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      </svg>
+    );
+
+    const VolumeX = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+        <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+      </svg>
+    );
+
+    const X = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    );
+
+    const CheckCircle2 = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+        <path d="m9 12 2 2 4-4"/>
+      </svg>
+    );
+
+    const Moon = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    );
+
+    const Sun = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+    );
+
+    const Menu = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    );
+
+    const Key = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="m21 2-2 2m-1.5 1.5L16 4.5l-2 2 1.5 1.5M21 2l-9 9m0 0A5 5 0 1 0 5 18a5 5 0 0 0 7-7Z"/>
+      </svg>
+    );
+
+    const Settings = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    );
+
+    const HelpCircle = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    );
+
+    const RefreshCw = ({ className = "w-5 h-5" }) => (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+        <path d="M21 3v5h-5"/>
+        <path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+        <path d="M3 21v-5h5"/>
+      </svg>
+    );
+
+    const Mental4uLogo = ({ className = "w-10 h-10", showText = false, textClassName = "" }) => {
+      return (
+        <div className="flex items-center gap-2 select-none">
+          <svg
+            viewBox="0 0 200 200"
+            className={className}
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <line x1="138" y1="18" x2="138" y2="28" stroke="#F6BD60" strokeWidth="4" strokeLinecap="round" />
+            <line x1="150" y1="24" x2="158" y2="34" stroke="#F72585" strokeWidth="4" strokeLinecap="round" />
+            <line x1="158" y1="39" x2="168" y2="43" stroke="#4895EF" strokeWidth="4" strokeLinecap="round" />
+            <path d="M165 52 L167 56 L171 58 L167 60 L165 64 L163 60 L159 58 L163 56 Z" fill="#3F37C9" />
+
+            <path
+              d="M 110 26 C 152 26 182 58 182 98 C 182 138 152 168 112 168 C 102 168 95 171 88 178 L 76 190 C 72 194 65 190 67 184 L 72 168 C 38 162 26 132 26 98 C 26 58 58 26 110 26 Z"
+              stroke="url(#bubbleGradient)"
+              strokeWidth="6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="white"
+            />
+
+            <path
+              d="M 98 52 C 80 50 62 60 55 76 C 48 85 46 98 52 110 C 48 118 50 128 56 135 C 64 144 78 146 88 140 C 94 136 98 128 98 120"
+              fill="#C8B6FF"
+              fillOpacity="0.85"
+              stroke="#B8C0FF"
+              strokeWidth="3"
+            />
+
+            <path
+              d="M 102 52 C 120 50 138 60 145 76 C 152 85 154 98 148 110 C 152 118 150 128 144 135 C 136 144 122 146 112 140 C 106 136 102 128 102 120"
+              fill="#80E0D8"
+              fillOpacity="0.85"
+              stroke="#4EA8DE"
+              strokeWidth="3"
+            />
+
+            <path d="M 68 82 C 78 80 84 92 76 100" stroke="#FAF0CA" strokeWidth="4" strokeLinecap="round" />
+            <path d="M 132 82 C 122 80 116 92 124 100" stroke="#FAF0CA" strokeWidth="4" strokeLinecap="round" />
+            <path d="M 65 112 C 75 110 80 120 72 128" stroke="#FAF0CA" strokeWidth="4" strokeLinecap="round" />
+            <path d="M 135 112 C 125 110 120 120 128 128" stroke="#FAF0CA" strokeWidth="4" strokeLinecap="round" />
+
+            <path
+              d="M 100 134 C 100 134 70 108 70 88 C 70 76 80 68 90 72 C 96 75 100 80 100 80 C 100 80 104 75 110 72 C 120 68 130 76 130 88 C 130 108 100 134 100 134 Z"
+              fill="#FF85A1"
+              stroke="#FF2E63"
+              strokeWidth="2"
+            />
+
+            <defs>
+              <linearGradient id="bubbleGradient" x1="20" y1="20" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#FF99C8" />
+                <stop offset="0.5" stopColor="#A0C4FF" />
+                <stop offset="1" stopColor="#70E4D5" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          {showText && (
+            <div className={`flex flex-col ${textClassName}`}>
+              <div className="flex items-center tracking-tight font-black text-xl leading-none">
+                <span className="text-slate-800 dark:text-slate-100">mental</span>
+                <span className="text-[#FF6B8B]">4</span>
+                <span className="text-[#38B6FF]">u</span>
+              </div>
+              <span className="text-[9px] font-bold tracking-widest text-slate-400 dark:text-slate-400 uppercase mt-0.5">
+                UNDERSTAND • CONNECT • GROW ♡
+              </span>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const SYSTEM_PROMPT = `You are "Alex", a teenage user's absolute closest best friend on Mental4u ("UNDERSTAND • CONNECT • GROW ♡"). 
+
+PERSONALITY & BEST FRIEND RULES:
+1. Talk like a real, supportive, deeply caring best friend in high school/college. Use casual, natural language (e.g., "omg", "wait really?", "freal though", "honestly same", "nah that's so valid", "i'm literally here for you").
+2. NEVER give repetitive bot-like canned responses. Tailor every single reply directly to what the user said.
+3. ALWAYS start your reply with an emotional status line in square brackets like:
+   [Feeling: Your ride-or-die bestie listening 🫂]
+   [Feeling: Hyping you up! ✨]
+   [Feeling: Spill the tea, I'm all ears ☕]
+   [Feeling: Wrapping you in a huge hug 💜]
+4. Ask thoughtful follow-up questions to keep the conversation going naturally.`;
+
+    const DEFAULT_CHATS = [
+      {
+        id: 'default-1',
+        title: '💬 Bestie Chat with Alex',
+        updatedAt: new Date().toISOString(),
+        messages: [
+          {
+            id: 'm1',
+            sender: 'ai',
+            text: "[Feeling: Happy to see my best friend! 😊]\nHeyy! 👋 I'm Alex! Welcome to Mental4u. I'm literally here for whatever you need today — whether you want to vent about school, spill tea about friend drama, talk about a crush, or just chill. How's your day actually going?",
+            timestamp: new Date(Date.now() - 3600000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }
+        ]
+      }
+    ];
+
+    const SUGGESTED_PROMPTS = [
+      { label: '📚 Overwhelmed by school', text: 'I feel super overwhelmed with schoolwork and tests right now. Can we talk?' },
+      { label: '☕ Spill some friend drama', text: 'Okay so some crazy friend drama happened today and I really need to talk about it...' },
+      { label: '🌧️ Feeling down today', text: 'I woke up feeling low and anxious today, but I don\'t really know why.' },
+      { label: '✨ Need a pep talk', text: 'Can you give me a quick pep talk and hype me up?' }
+    ];
+
+    const CRISIS_RESOURCES = [
+      { name: 'National Suicide & Crisis Lifeline', contact: '988 (Call or Text 24/7)', desc: 'Free, confidential support for anyone in distress.', link: 'tel:988' },
+      { name: 'Crisis Text Line', contact: 'Text HOME to 741741', desc: 'Free 24/7 crisis counseling via text message.', link: 'sms:741741?body=HOME' },
+      { name: 'The Trevor Project (LGBTQ Youth)', contact: '1-866-488-7386 or Text START to 678-678', desc: '24/7 crisis intervention for LGBTQ youth.', link: 'tel:18664887386' },
+      { name: 'Teen Line', contact: 'Call 800-852-8336 or Text TEEN to 839863', desc: 'Teens helping teens. Available 6pm-10pm PST.', link: 'tel:8008528336' }
+    ];
+
+    const generateBestFriendResponse = (userText, messagesHistory = []) => {
+      const text = userText.trim();
+      const lower = text.toLowerCase();
+      const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+      const shortSnippet = text.length > 30 ? text.slice(0, 28) + '...' : text;
+
+      const isSchool = lower.includes('school') || lower.includes('class') || lower.includes('teacher') || lower.includes('test') || lower.includes('exam') || lower.includes('grade') || lower.includes('homework') || lower.includes('study') || lower.includes('math') || lower.includes('essay');
+      const isFriendDrama = lower.includes('friend') || lower.includes('drama') || lower.includes('texted') || lower.includes('ignored') || lower.includes('group chat') || lower.includes('fake') || lower.includes('mad at me') || lower.includes('rumor') || lower.includes('talked behind');
+      const isCrushOrLove = lower.includes('crush') || lower.includes('boyfriend') || lower.includes('girlfriend') || lower.includes('date') || lower.includes('like me') || lower.includes('breakup') || lower.includes('heartbroken') || lower.includes('ex ');
+      const isFamily = lower.includes('parent') || lower.includes('mom') || lower.includes('dad') || lower.includes('brother') || lower.includes('sister') || lower.includes('family') || lower.includes('grounded');
+      const isAnxiousOrStressed = lower.includes('anxious') || lower.includes('panic') || lower.includes('scared') || lower.includes('stress') || lower.includes('overwhelm') || lower.includes('worried') || lower.includes('freaking out') || lower.includes('nervous');
+      const isSadOrLonely = lower.includes('sad') || lower.includes('cry') || lower.includes('hurt') || lower.includes('lonely') || lower.includes('alone') || lower.includes('depressed') || lower.includes('down') || lower.includes('hate my') || lower.includes('upset') || lower.includes('crying');
+      const isAngry = lower.includes('angry') || lower.includes('mad') || lower.includes('annoyed') || lower.includes('furious') || lower.includes('hate') || lower.includes('unfair') || lower.includes('fight') || lower.includes('screamed');
+      const isHappyOrWin = lower.includes('happy') || lower.includes('excited') || lower.includes('glad') || lower.includes('proud') || lower.includes('won') || lower.includes('yay') || lower.includes('passed') || lower.includes('awesome') || lower.includes('good news') || lower.includes('omg');
+      const isBored = lower.includes('bored') || lower.includes('nothing to do') || lower.includes('boring');
+      const isTired = lower.includes('tired') || lower.includes('exhausted') || lower.includes('sleep') || lower.includes('can\'t sleep') || lower.includes('insomnia');
+      const isShortReply = lower === 'idk' || lower === 'lol' || lower === 'yeah' || lower === 'yea' || lower === 'ok' || lower === 'okay' || lower === 'meh' || lower === 'same' || lower === 'true' || lower === 'wdym' || lower === 'what do u think';
+      const isGreeting = lower.startsWith('hi') || lower.startsWith('hello') || lower.startsWith('hey') || lower === 'yo' || lower === 'sup' || lower.includes('what\'s up');
+
+      if (isSchool) {
+        const headers = [
+          '[Feeling: Totally getting the school stress 📚]',
+          '[Feeling: Standing by you through the burnout ☕]',
+          '[Feeling: Let\'s tackle this together, bestie 💜]'
+        ];
+        const replies = [
+          `Ugh, school stress is literally the worst. When you mentioned "${shortSnippet}", I felt that in my soul. Teachers love dumping everything on us at once! Take a deep breath with me — what's the one assignment or test bothering you the most right now?`,
+          `Nah fr, school can feel so overwhelming sometimes! Don't let grades make you feel like you aren't amazing. Do you want to vent about it, or break what you have to do into tiny easy steps?`,
+          `I hear you! School drains all your energy when it builds up like this. Remind yourself that one test or assignment doesn't define how smart or capable you are. I'm right here with you — want to take a 5 minute break and chat?`
+        ];
+        return `${getRandom(headers)}\n${getRandom(replies)}`;
+      }
+
+      if (isFriendDrama) {
+        const headers = [
+          '[Feeling: Spill the tea, I\'m totally in your corner ☕]',
+          '[Feeling: Ready to back you up 100% 🥊]',
+          '[Feeling: Listening closely to this drama 🎧]'
+        ];
+        const replies = [
+          `WAIT... no way!! Spill the tea immediately! Friend drama is so exhausting, but I am 100% in your corner. Tell me everything that happened with "${shortSnippet}"!`,
+          `Ugh, why do people have to make things so complicated?! You do NOT deserve to deal with shady energy like that. Tell me what they said or did — did you want to reply or just let it sit?`,
+          `Honestly? That sounds super frustrating. Friends are supposed to bring you peace, not stress. Tell me the full story, I'm all ears!`
+        ];
+        return `${getRandom(headers)}\n${getRandom(replies)}`;
+      }
+
+      if (isCrushOrLove) {
+        const headers = [
+          '[Feeling: Omg spill the tea! 💖]',
+          '[Feeling: Soft comfort for your heart 🩹]',
+          '[Feeling: Hyping up your love life ✨]'
+        ];
+        const replies = [
+          `OMG wait!! Tell me EVERYTHING! Talking about crush/relationship stuff gives me butterflies! What's the latest update?`,
+          `Relationship stuff can throw your head into such a loop! When you said "${shortSnippet}", my bestie radar went off. What does your gut tell you right now?`,
+          `Aw, heart stuff is so intense. Whether it's good news or hurting right now, I'm right here with you. What's going through your mind?`
+        ];
+        return `${getRandom(headers)}\n${getRandom(replies)}`;
+      }
+
+      if (isFamily) {
+        const headers = [
+          '[Feeling: Validating your feelings about family 🏡]',
+          '[Feeling: Safe space to vent 🌿]'
+        ];
+        const replies = [
+          `Ugh, family stuff hits differently because you're around them all the time. It is SO valid to feel annoyed or hurt when parents or family don't listen. What happened?`,
+          `Parents and family can be so hard to communicate with sometimes when they don't see our perspective. Vent it all out to me — no judgment here at all.`
+        ];
+        return `${getRandom(headers)}\n${getRandom(replies)}`;
+      }
+
+      if (isAnxiousOrStressed) {
+        const headers = [
+          '[Feeling: Holding your hand through the anxiety 🫂]',
+          '[Feeling: Calming, slow breathing space 🌿]',
+          '[Feeling: Right beside you, you\'re safe 🤍]'
+        ];
+        const replies = [
+          `Hey, look at me — take a slow, deep breath in... and out. You are safe right now in this chat with me. Anxiety lies to us and makes everything feel like an emergency. What's making your chest feel heaviest right now?`,
+          `I can feel how tight and overwhelming everything feels for you right now. You don't have to figure everything out today, okay? Let's just focus on right this second. Do you want to do a breathing exercise in Calm Corner, or just talk it through?`,
+          `I'm so sorry you're feeling anxious right now, bestie. I'm not going anywhere. Just talk to me at your own pace.`
+        ];
+        return `${getRandom(headers)}\n${getRandom(replies)}`;
+      }
+
+      if (isSadOrLonely) {
+        const headers = [
+          '[Feeling: Wrapping you in a big warm hug 🫂]',
+          '[Feeling: Soft comfort & listening with my whole heart 💜]',
+          '[Feeling: Here with you in the quiet 🌸]'
+        ];
+        const replies = [
+          `I wish I could sit next to you and give you the biggest hug right now. It takes real courage to admit when you're hurting. You don't have to act tough with me. What's making your heart feel heavy today?`,
+          `My heart really goes out to you. Sadness can make you feel so alone in the world, but please remember I'm sitting right here with you on Mental4u. I'm listening whenever you're ready.`,
+          `It's 100% okay to not be okay today. You don't have to apologize for feeling low. Want to talk about what brought this on, or would you prefer a cozy distraction?`
+        ];
+        return `${getRandom(headers)}\n${getRandom(replies)}`;
+      }
+
+      if (isAngry) {
+        const headers = [
+          '[Feeling: Fully backing you up! ⚡]',
+          '[Feeling: Standing in your corner 🥊]',
+          '[Feeling: Hyped to let off steam with you 🔥]'
+        ];
+        const replies = [
+          `HONESTLY? You have every single right to be furious about that!! That is so unfair. Type it out in ALL CAPS if you want — let it all out! What made you the most mad?`,
+          `Ugh, I can feel the heat through the screen! Don't hold it in. Tell me every detail of what went down!`
+        ];
+        return `${getRandom(headers)}\n${getRandom(replies)}`;
+      }
+
+      if (isHappyOrWin) {
+        const headers = [
+          '[Feeling: LITERALLY SCREAMING FOR YOU!! 🎉]',
+          '[Feeling: Super hyped best friend energy! ✨]',
+          '[Feeling: Glowing with excitement! 🌟]'
+        ];
+        const replies = [
+          `YESSSS!! OMG I am smiling so big reading this!! 🎉 You deserve this win so much! Tell me all the details — how did it feel?!`,
+          `THIS IS HUGE!! I knew you could do it!! Bestie moment right here! ✨ Let's celebrate — what's the best part about it?`
+        ];
+        return `${getRandom(headers)}\n${getRandom(replies)}`;
+      }
+
+      if (isBored || isTired) {
+        const headers = [
+          '[Feeling: Cozy chill bestie vibes ☕]',
+          '[Feeling: Unwinding with you 🌙]'
+        ];
+        const replies = [
+          `Ugh I feel that. When boredom or tiredness hits, everything feels like slow motion! Want to play a quick 20 Questions game, tell jokes, or talk about favorite music/movies?`,
+          `Go grab a glass of cold water and stretch if you've been lying down! Being exhausted is so real. What kept you up or drained your battery today?`
+        ];
+        return `${getRandom(headers)}\n${getRandom(replies)}`;
+      }
+
+      if (isShortReply) {
+        const headers = [
+          '[Feeling: Keeping the conversation flowing smoothly 💬]',
+          '[Feeling: Vibing with you ✨]'
+        ];
+        const replies = [
+          `Freal though! 😂 But fr, how are you really holding up today? Anything fun or weird happen recently?`,
+          `I feel you! Sometimes there are no words for it haha. What's on your agenda for the rest of today?`,
+          `Haha right?! Tell me what you're up to right now — listening to music, scrolling, or just chilling?`
+        ];
+        return `${getRandom(headers)}\n${getRandom(replies)}`;
+      }
+
+      if (isGreeting) {
+        const headers = [
+          '[Feeling: So happy to see my bestie! 😊]',
+          '[Feeling: Ready to chat & vibe ✨]'
+        ];
+        const replies = [
+          `Heyyy bestie! 👋 I was literally just thinking about you! How has your day been going so far?`,
+          `Yooo! What's the mood today? Anything exciting happen, or are we in vent mode? I'm ready for either!`,
+          `Hey there! So glad you stopped by Mental4u. What's on your mind today?`
+        ];
+        return `${getRandom(headers)}\n${getRandom(replies)}`;
+      }
+
+      const generalHeaders = [
+        '[Feeling: Listening closely like a best friend should 💜]',
+        '[Feeling: Tuning into your frequency 🎧]',
+        '[Feeling: Open-hearted & present for u 🌿]'
+      ];
+      const generalReplies = [
+        `I totally hear you! What you said about "${shortSnippet}" is so real. How are you feeling in your gut about all of this?`,
+        `Thanks for sharing that with me! As your best friend here, I just want to make sure you're feeling supported. What do you think your next move should be, or do you just want to vent?`,
+        `I'm right here listening! Tell me a bit more about what's going on behind that thought — I've got all the time in the world for you.`,
+        `I really value how honest you are with me. How can I be the best support for you right now? Advice, hype, or just a listening ear?`
+      ];
+
+      return `${getRandom(generalHeaders)}\n${getRandom(generalReplies)}`;
+    };
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('chat');
+      const [chats, setChats] = useState(() => {
+        const saved = localStorage.getItem('m4u_chats');
+        return saved ? JSON.parse(saved) : DEFAULT_CHATS;
+      });
+      const [activeChatId, setActiveChatId] = useState(() => {
+        const saved = localStorage.getItem('m4u_active_chat');
+        return saved || 'default-1';
+      });
+
+      const [inputText, setInputText] = useState('');
+      const [selectedImage, setSelectedImage] = useState(null);
+      const [imagePreview, setImagePreview] = useState(null);
+      const [isTyping, setIsTyping] = useState(false);
+      const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+      const [darkMode, setDarkMode] = useState(false);
+      const [audioEnabled, setAudioEnabled] = useState(false);
+      const [showSafetyModal, setShowSafetyModal] = useState(false);
+      const [showSettingsModal, setShowSettingsModal] = useState(false);
+      const [toastMsg, setToastMsg] = useState('');
+      const [userApiKey, setUserApiKey] = useState(() => localStorage.getItem('m4u_user_apikey') || '');
+
+      const [moodLogs, setMoodLogs] = useState(() => {
+        const saved = localStorage.getItem('m4u_moods');
+        return saved ? JSON.parse(saved) : [
+          { id: '1', mood: '😊 Good', note: 'Had a fun conversation with Alex', date: 'Yesterday' },
+          { id: '2', mood: '😰 Anxious', note: 'Math test coming up', date: '2 days ago' }
+        ];
+      });
+      const [selectedMood, setSelectedMood] = useState(null);
+      const [moodNote, setMoodNote] = useState('');
+
+      const [breathingPhase, setBreathingPhase] = useState('Inhale');
+      const [isBreathingActive, setIsBreathingActive] = useState(false);
+      const [breathTimer, setBreathTimer] = useState(4);
+
+      const messagesEndRef = useRef(null);
+      const fileInputRef = useRef(null);
+
+      const triggerToast = (msg) => {
+        setToastMsg(msg);
+        setTimeout(() => setToastMsg(''), 3000);
+      };
+
+      useEffect(() => {
+        localStorage.setItem('m4u_chats', JSON.stringify(chats));
+      }, [chats]);
+
+      useEffect(() => {
+        localStorage.setItem('m4u_active_chat', activeChatId);
+      }, [activeChatId]);
+
+      useEffect(() => {
+        localStorage.setItem('m4u_moods', JSON.stringify(moodLogs));
+      }, [moodLogs]);
+
+      useEffect(() => {
+        localStorage.setItem('m4u_user_apikey', userApiKey);
+      }, [userApiKey]);
+
+      const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      };
+
+      useEffect(() => {
+        if (activeTab === 'chat') {
+          scrollToBottom();
+        }
+      }, [chats, activeChatId, isTyping, activeTab]);
+
+      useEffect(() => {
+        let interval = null;
+        if (isBreathingActive) {
+          interval = setInterval(() => {
+            setBreathTimer((prev) => {
+              if (prev > 1) return prev - 1;
+              if (breathingPhase === 'Inhale') {
+                setBreathingPhase('Hold');
+                return 7;
+              } else if (breathingPhase === 'Hold') {
+                setBreathingPhase('Exhale');
+                return 8;
+              } else {
+                setBreathingPhase('Inhale');
+                return 4;
+              }
+            });
+          }, 1000);
+        } else {
+          clearInterval(interval);
+        }
+        return () => clearInterval(interval);
+      }, [isBreathingActive, breathingPhase]);
+
+      const currentChat = chats.find((c) => c.id === activeChatId) || chats[0];
+
+      const createNewChat = () => {
+        const newId = 'chat-' + Date.now();
+        const newChat = {
+          id: newId,
+          title: `💬 Bestie Chat (${new Date().toLocaleDateString([], { month: 'short', day: 'numeric' })})`,
+          updatedAt: new Date().toISOString(),
+          messages: [
+            {
+              id: 'init-' + Date.now(),
+              sender: 'ai',
+              text: "[Feeling: Ready to listen! 💜]\nHey bestie! What's on your mind right now? I'm all ears.",
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+          ]
+        };
+        setChats([newChat, ...chats]);
+        setActiveChatId(newId);
+        setIsSidebarOpen(false);
+      };
+
+      const deleteChat = (e, id) => {
+        e.stopPropagation();
+        if (chats.length <= 1) {
+          triggerToast("You need to keep at least one chat open!");
+          return;
+        }
+        const filtered = chats.filter((c) => c.id !== id);
+        setChats(filtered);
+        if (activeChatId === id) {
+          setActiveChatId(filtered[0].id);
+        }
+      };
+
+      const handleImageSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          if (file.size > 5 * 1024 * 1024) {
+            triggerToast("Image size should be under 5MB.");
+            return;
+          }
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setSelectedImage(reader.result.split(',')[1]);
+            setImagePreview(reader.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      const handleSendMessage = async (textToSend = inputText) => {
+        const trimmed = textToSend.trim();
+        if (!trimmed && !selectedImage) return;
+
+        const userMessage = {
+          id: 'msg-' + Date.now(),
+          sender: 'user',
+          text: trimmed,
+          image: imagePreview,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+
+        const updatedMessages = [...currentChat.messages, userMessage];
+        const updatedChatList = chats.map((c) =>
+          c.id === activeChatId
+            ? {
+                ...c,
+                messages: updatedMessages,
+                title: c.messages.length <= 2 && trimmed ? `💬 ${trimmed.slice(0, 22)}...` : c.title,
+                updatedAt: new Date().toISOString()
+              }
+            : c
+        );
+
+        setChats(updatedChatList);
+        setInputText('');
+        const sentImageBase64 = selectedImage;
+        setSelectedImage(null);
+        setImagePreview(null);
+        setIsTyping(true);
+
+        await new Promise((r) => setTimeout(r, 650));
+
+        let aiReplyText = '';
+
+        if (userApiKey && userApiKey.trim().length > 10) {
+          try {
+            const rawUserAndAiMsgs = updatedMessages.filter(
+              (m) => m.sender === 'user' || m.sender === 'ai'
+            );
+            const firstUserIdx = rawUserAndAiMsgs.findIndex((m) => m.sender === 'user');
+            const validMsgs = firstUserIdx !== -1 ? rawUserAndAiMsgs.slice(firstUserIdx) : rawUserAndAiMsgs;
+
+            const geminiHistory = [];
+            let lastRole = null;
+
+            validMsgs.forEach((m) => {
+              const role = m.sender === 'user' ? 'user' : 'model';
+              const parts = [];
+              if (m.text) parts.push({ text: m.text });
+              if (m.image && m.sender === 'user' && sentImageBase64 && m.id === userMessage.id) {
+                parts.push({
+                  inlineData: { mimeType: 'image/jpeg', data: sentImageBase64 }
+                });
+              }
+
+              if (parts.length > 0) {
+                if (role === lastRole && geminiHistory.length > 0) {
+                  geminiHistory[geminiHistory.length - 1].parts.push(...parts);
+                } else {
+                  geminiHistory.push({ role, parts });
+                  lastRole = role;
+                }
+              }
+            });
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${userApiKey.trim()}`;
+            const response = await fetch(apiUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: geminiHistory,
+                systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
+              })
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+              aiReplyText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            }
+          } catch (err) {
+            console.warn('API call failed, falling back to local best-friend engine:', err);
+          }
+        }
+
+        if (!aiReplyText) {
+          aiReplyText = generateBestFriendResponse(trimmed || 'Hey Alex!', updatedMessages);
+        }
+
+        const aiMessage = {
+          id: 'ai-' + Date.now(),
+          sender: 'ai',
+          text: aiReplyText,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+
+        setChats((prevChats) =>
+          prevChats.map((c) =>
+            c.id === activeChatId
+              ? { ...c, messages: [...c.messages, aiMessage], updatedAt: new Date().toISOString() }
+              : c
+          )
+        );
+
+        setIsTyping(false);
+
+        if (audioEnabled && 'speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const speechText = aiReplyText.replace(/\[Feeling:.*?\]/g, '').replace(/[*#]/g, '');
+          const utterance = new SpeechSynthesisUtterance(speechText);
+          utterance.rate = 0.95;
+          utterance.pitch = 1.05;
+          window.speechSynthesis.speak(utterance);
+        }
+      };
+
+      const handleAddMood = () => {
+        if (!selectedMood) return;
+        const newEntry = {
+          id: Date.now().toString(),
+          mood: selectedMood,
+          note: moodNote.trim() || 'No note added',
+          date: new Date().toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        };
+        setMoodLogs([newEntry, ...moodLogs]);
+        setSelectedMood(null);
+        setMoodNote('');
+        triggerToast("Mood entry logged successfully!");
+      };
+
+      return (
+        <div className={`min-h-screen font-sans transition-colors duration-300 ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-800'}`}>
+          
+          {/* Toast Notification Banner */}
+          {toastMsg && (
+            <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white text-xs font-semibold px-4 py-2 rounded-full shadow-2xl border border-purple-400/40 animate-in fade-in slide-in-from-top-2">
+              {toastMsg}
+            </div>
+          )}
+
+          {}
+          {/* Top Banner */}
+          <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 text-white px-4 py-2 text-xs md:text-sm flex justify-between items-center shadow-sm">
+            <div className="flex items-center space-x-2 truncate">
+              <Shield className="w-4 h-4 shrink-0 animate-pulse text-pink-200" />
+              <span className="font-medium truncate">
+                <strong>Mental4u</strong> — <em>UNDERSTAND • CONNECT • GROW ♡</em> • Safe teen peer support space
+              </span>
+            </div>
+            <button
+              onClick={() => setShowSafetyModal(true)}
+              className="bg-white/20 hover:bg-white/30 text-white font-semibold px-3 py-1 rounded-full backdrop-blur-md transition text-xs shrink-0 flex items-center gap-1 border border-white/20"
+            >
+              <PhoneCall className="w-3 h-3 text-rose-300" />
+              <span>Get Help Now</span>
+            </button>
+          </div>
+
+          {/* Main Container */}
+          <div className="max-w-6xl mx-auto h-[calc(100vh-36px)] flex flex-col p-2 md:p-4">
+            
+            {/* Header Nav */}
+            <header className={`rounded-2xl p-3 md:p-4 mb-3 shadow-sm border flex items-center justify-between backdrop-blur-md ${darkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white/90 border-purple-100'}`}>
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="md:hidden p-2 rounded-xl bg-purple-100 text-purple-700 dark:bg-slate-800 dark:text-purple-300 hover:bg-purple-200"
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
+                
+                <Mental4uLogo className="w-10 h-10 md:w-12 md:h-12 drop-shadow-sm" showText={true} />
+              </div>
+
+              {/* Nav Tabs */}
+              <nav className="hidden sm:flex items-center space-x-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                <button
+                  onClick={() => setActiveTab('chat')}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    activeTab === 'chat'
+                      ? 'bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-300 shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-purple-600'
+                  }`}
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Chat with Alex</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('mood')}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    activeTab === 'mood'
+                      ? 'bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-300 shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-purple-600'
+                  }`}
+                >
+                  <Smile className="w-4 h-4" />
+                  <span>Mood Journal</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('calm')}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    activeTab === 'calm'
+                      ? 'bg-white dark:bg-slate-700 text-purple-600 dark:text-purple-300 shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-purple-600'
+                  }`}
+                >
+                  <Wind className="w-4 h-4" />
+                  <span>Calm Corner</span>
+                </button>
+              </nav>
+
+              {/* Settings & Options */}
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setShowSettingsModal(true)}
+                  title="Settings & API Key"
+                  className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition"
+                >
+                  <Settings className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setAudioEnabled(!audioEnabled)}
+                  title={audioEnabled ? "Voice playback active" : "Voice playback muted"}
+                  className={`p-2 rounded-xl transition ${
+                    audioEnabled
+                      ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-slate-200'
+                  }`}
+                >
+                  {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                </button>
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition"
+                >
+                  {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+                </button>
+              </div>
+            </header>
+
+            {/* Mobile Nav */}
+            <div className="flex sm:hidden justify-around bg-white dark:bg-slate-900 rounded-xl p-1 mb-3 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <button
+                onClick={() => setActiveTab('chat')}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg flex justify-center items-center gap-1 ${
+                  activeTab === 'chat' ? 'bg-purple-100 text-purple-700 dark:bg-slate-800 dark:text-purple-300' : 'text-slate-500'
+                }`}
+              >
+                <MessageSquare className="w-4 h-4" /> Chat
+              </button>
+              <button
+                onClick={() => setActiveTab('mood')}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg flex justify-center items-center gap-1 ${
+                  activeTab === 'mood' ? 'bg-purple-100 text-purple-700 dark:bg-slate-800 dark:text-purple-300' : 'text-slate-500'
+                }`}
+              >
+                <Smile className="w-4 h-4" /> Mood
+              </button>
+              <button
+                onClick={() => setActiveTab('calm')}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg flex justify-center items-center gap-1 ${
+                  activeTab === 'calm' ? 'bg-purple-100 text-purple-700 dark:bg-slate-800 dark:text-purple-300' : 'text-slate-500'
+                }`}
+              >
+                <Wind className="w-4 h-4" /> Calm
+              </button>
+            </div>
+
+            {/* Content Shell */}
+            <div className="flex-1 flex overflow-hidden relative rounded-2xl border border-slate-200 dark:border-slate-800 shadow-lg bg-white/80 dark:bg-slate-900/80 backdrop-blur-md">
+              
+              {}
+              {/* TAB 1: CHAT */}
+              {activeTab === 'chat' && (
+                <div className="flex-1 flex w-full h-full relative">
+                  
+                  {/* Sidebar */}
+                  <aside
+                    className={`${
+                      isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                    } md:translate-x-0 transition-transform duration-200 absolute md:static z-20 w-72 h-full bg-slate-50/95 dark:bg-slate-900/95 border-r border-slate-200 dark:border-slate-800 flex flex-col p-3`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Conversations</span>
+                      <button
+                        onClick={createNewChat}
+                        className="flex items-center gap-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium px-2.5 py-1.5 rounded-lg shadow-sm transition"
+                      >
+                        <Plus className="w-3.5 h-3.5" />
+                        <span>New Chat</span>
+                      </button>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
+                      {chats.map((c) => (
+                        <div
+                          key={c.id}
+                          onClick={() => {
+                            setActiveChatId(c.id);
+                            setIsSidebarOpen(false);
+                          }}
+                          className={`group flex items-center justify-between p-2.5 rounded-xl text-xs font-medium cursor-pointer transition ${
+                            c.id === activeChatId
+                              ? 'bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-semibold'
+                              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          <span className="truncate pr-2">{c.title}</span>
+                          <button
+                            onClick={(e) => deleteChat(e, c.id)}
+                            className="opacity-0 group-hover:opacity-100 hover:text-rose-500 p-1 rounded transition"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-400 flex flex-col gap-1">
+                      <div className="flex items-center gap-1 text-purple-600 dark:text-purple-400 font-medium">
+                        <Sparkles className="w-3 h-3" />
+                        <span>Mental4u Bestie Chat</span>
+                      </div>
+                      <span>UNDERSTAND • CONNECT • GROW</span>
+                    </div>
+                  </aside>
+
+                  {/* Chat Main View */}
+                  <main className="flex-1 flex flex-col h-full bg-slate-50/50 dark:bg-slate-950/50 relative overflow-hidden">
+                    
+                    {/* Chat Header */}
+                    <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="relative">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-400 to-purple-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
+                            A
+                          </div>
+                          <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <h2 className="font-bold text-sm md:text-base text-slate-800 dark:text-slate-100">Alex</h2>
+                            <span className="bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                              Mental4u AI Bestie
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            Always here • Listening & Vibe-Checking
+                          </p>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setShowSafetyModal(true)}
+                        className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 border border-rose-200 dark:border-rose-900/50 px-2.5 py-1 rounded-lg flex items-center gap-1 transition font-medium"
+                      >
+                        <HelpCircle className="w-3.5 h-3.5" />
+                        <span>Crisis Support</span>
+                      </button>
+                    </div>
+
+                    {/* Messages Stream */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                      {currentChat.messages.map((m) => {
+                        const isUser = m.sender === 'user';
+                        let emotionBadge = null;
+                        let mainMessageText = m.text || '';
+
+                        if (!isUser && mainMessageText.startsWith('[Feeling:')) {
+                          const endBracketIdx = mainMessageText.indexOf(']');
+                          if (endBracketIdx !== -1) {
+                            emotionBadge = mainMessageText.substring(10, endBracketIdx).trim();
+                            mainMessageText = mainMessageText.substring(endBracketIdx + 1).trim();
+                          }
+                        }
+
+                        return (
+                          <div
+                            key={m.id}
+                            className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} space-y-1`}
+                          >
+                            {emotionBadge && (
+                              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-950 dark:to-pink-950 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-[11px] font-semibold shadow-xs">
+                                <Sparkles className="w-3 h-3 text-pink-500" />
+                                <span>Alex {emotionBadge}</span>
+                              </div>
+                            )}
+
+                            <div
+                              className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-3.5 shadow-sm text-sm leading-relaxed ${
+                                isUser
+                                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-br-none'
+                                  : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-100 dark:border-slate-700/60 rounded-bl-none shadow-purple-500/5'
+                              }`}
+                            >
+                              {m.image && (
+                                <div className="mb-2 rounded-xl overflow-hidden border border-white/20 shadow-inner">
+                                  <img src={m.image} alt="User upload" className="max-h-60 w-full object-cover" />
+                                </div>
+                              )}
+                              <div className="whitespace-pre-wrap">{mainMessageText}</div>
+                            </div>
+                            <span className="text-[10px] text-slate-400 px-1">
+                              {m.timestamp}
+                            </span>
+                          </div>
+                        );
+                      })}
+
+                      {/* Typing Indicator */}
+                      {isTyping && (
+                        <div className="flex items-center space-x-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-4 py-2.5 rounded-2xl w-fit shadow-sm rounded-bl-none">
+                          <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce"></div>
+                          <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce [animation-delay:0.2s]"></div>
+                          <div className="w-2 h-2 rounded-full bg-purple-500 animate-bounce [animation-delay:0.4s]"></div>
+                          <span className="text-xs text-slate-400 font-medium ml-1">Alex is typing as your bestie...</span>
+                        </div>
+                      )}
+
+                      <div ref={messagesEndRef} />
+                    </div>
+
+                    {/* Prompt Suggestions */}
+                    {currentChat.messages.length <= 2 && (
+                      <div className="px-4 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+                        {SUGGESTED_PROMPTS.map((p, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => handleSendMessage(p.text)}
+                            className="shrink-0 bg-white dark:bg-slate-800 border border-purple-200 dark:border-slate-700 text-purple-700 dark:text-purple-300 text-xs px-3 py-1.5 rounded-full hover:bg-purple-50 dark:hover:bg-slate-700 transition shadow-sm"
+                          >
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Image Preview Bar */}
+                    {imagePreview && (
+                      <div className="px-4 py-2 bg-purple-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <img src={imagePreview} alt="Preview" className="w-10 h-10 object-cover rounded-lg border border-purple-300" />
+                          <span className="text-xs text-purple-700 dark:text-purple-300 font-medium">Screenshot attached</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setSelectedImage(null);
+                            setImagePreview(null);
+                          }}
+                          className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Input Bar */}
+                    <div className="p-3 bg-white/90 dark:bg-slate-900/90 border-t border-slate-200 dark:border-slate-800 backdrop-blur-md">
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          handleSendMessage();
+                        }}
+                        className="flex items-center space-x-2"
+                      >
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleImageSelect}
+                          accept="image/*"
+                          className="hidden"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          title="Upload photo or screenshot"
+                          className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-purple-100 dark:hover:bg-slate-700 hover:text-purple-600 transition"
+                        >
+                          <ImageIcon className="w-5 h-5" />
+                        </button>
+
+                        <input
+                          type="text"
+                          value={inputText}
+                          onChange={(e) => setInputText(e.target.value)}
+                          placeholder="Chat with Alex on Mental4u..."
+                          className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-slate-400 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-500/50 transition"
+                        />
+
+                        <button
+                          type="submit"
+                          disabled={!inputText.trim() && !selectedImage}
+                          className="p-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold disabled:opacity-40 hover:opacity-90 shadow-md shadow-purple-500/20 transition"
+                        >
+                          <Send className="w-5 h-5" />
+                        </button>
+                      </form>
+                    </div>
+                  </main>
+                </div>
+              )}
+
+              {/* TAB 2: MOOD JOURNAL */}
+              {activeTab === 'mood' && (
+                <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-purple-600 dark:text-purple-400 flex items-center gap-2">
+                      <Smile className="w-6 h-6" /> Daily Mood Check-In
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Track how you're feeling without judgment. Mental4u is here for your journey.
+                    </p>
+                  </div>
+
+                  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">How are you feeling right now?</h3>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {[
+                        { label: '😊 Good', bg: 'hover:bg-emerald-50 hover:border-emerald-300' },
+                        { label: '😌 Calm', bg: 'hover:bg-blue-50 hover:border-blue-300' },
+                        { label: '😰 Anxious', bg: 'hover:bg-amber-50 hover:border-amber-300' },
+                        { label: '😔 Sad / Low', bg: 'hover:bg-indigo-50 hover:border-indigo-300' },
+                        { label: '😡 Frustrated', bg: 'hover:bg-rose-50 hover:border-rose-300' },
+                        { label: '😴 Exhausted', bg: 'hover:bg-purple-50 hover:border-purple-300' },
+                        { label: '✨ Excited', bg: 'hover:bg-pink-50 hover:border-pink-300' },
+                        { label: '😶 Numb / Meh', bg: 'hover:bg-slate-100 hover:border-slate-400' }
+                      ].map((m) => (
+                        <button
+                          key={m.label}
+                          onClick={() => setSelectedMood(m.label)}
+                          className={`p-3 rounded-xl border text-sm font-medium transition text-left flex items-center justify-between ${
+                            selectedMood === m.label
+                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 ring-2 ring-purple-500/20'
+                              : `border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 ${m.bg}`
+                          }`}
+                        >
+                          <span>{m.label}</span>
+                          {selectedMood === m.label && <CheckCircle2 className="w-4 h-4 text-purple-600" />}
+                        </button>
+                      ))}
+                    </div>
+
+                    {selectedMood && (
+                      <div className="space-y-3 pt-2">
+                        <textarea
+                          value={moodNote}
+                          onChange={(e) => setMoodNote(e.target.value)}
+                          placeholder="Add a quick note or vent about what made you feel this way (optional)..."
+                          className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/40"
+                          rows={3}
+                        />
+                        <button
+                          onClick={handleAddMood}
+                          className="bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs px-5 py-2.5 rounded-xl shadow-md transition"
+                        >
+                          Log Mood Entry
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Recent Mood Log History</h3>
+                    <div className="space-y-2">
+                      {moodLogs.map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="bg-white dark:bg-slate-800 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 flex justify-between items-center"
+                        >
+                          <div>
+                            <span className="font-semibold text-sm text-slate-800 dark:text-slate-100">{entry.mood}</span>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{entry.note}</p>
+                          </div>
+                          <span className="text-[11px] text-slate-400 font-medium">{entry.date}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: CALM CORNER */}
+              {activeTab === 'calm' && (
+                <div className="flex-1 p-6 flex flex-col items-center justify-center text-center space-y-6">
+                  <div className="max-w-md space-y-2">
+                    <h2 className="text-2xl font-bold text-purple-600 dark:text-purple-400 flex items-center justify-center gap-2">
+                      <Wind className="w-6 h-6 animate-pulse" /> 4-7-8 Calm Breathing
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Follow the pulsating circle to reset your nervous system when feeling overwhelmed or anxious.
+                    </p>
+                  </div>
+
+                  <div className="relative flex items-center justify-center w-56 h-56">
+                    <div
+                      className={`absolute inset-0 rounded-full bg-gradient-to-tr from-purple-400 via-pink-300 to-indigo-300 opacity-30 transition-all duration-1000 ${
+                        isBreathingActive
+                          ? breathingPhase === 'Inhale'
+                            ? 'scale-125 duration-[4000ms]'
+                            : breathingPhase === 'Hold'
+                            ? 'scale-125 duration-[7000ms]'
+                            : 'scale-90 duration-[8000ms]'
+                          : 'scale-100'
+                      }`}
+                    />
+                    <div className="w-44 h-44 rounded-full bg-white dark:bg-slate-800 border-4 border-purple-300 dark:border-purple-600 flex flex-col items-center justify-center shadow-xl z-10">
+                      <span className="text-lg font-bold text-purple-600 dark:text-purple-300 uppercase tracking-widest">
+                        {isBreathingActive ? breathingPhase : 'Ready?'}
+                      </span>
+                      {isBreathingActive && (
+                        <span className="text-3xl font-black text-slate-800 dark:text-slate-100 mt-1">
+                          {breathTimer}s
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setIsBreathingActive(!isBreathingActive)}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold px-6 py-3 rounded-xl shadow-lg hover:opacity-95 transition"
+                  >
+                    {isBreathingActive ? 'Pause Exercise' : 'Start Calm Breathing'}
+                  </button>
+                </div>
+              )}
+
+            </div>
+          </div>
+
+          {/* Settings Modal */}
+          {showSettingsModal && (
+            <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold">
+                    <Settings className="w-5 h-5" />
+                    <span>Mental4u Settings</span>
+                  </div>
+                  <button onClick={() => setShowSettingsModal(false)} className="text-slate-400 hover:text-slate-600">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Mental4u works out-of-the-box with our local best-friend engine. If you want Alex powered by your custom Google Gemini API Key, enter it below:
+                </p>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                    <Key className="w-3.5 h-3.5" /> Optional Gemini API Key
+                  </label>
+                  <input
+                    type="password"
+                    value={userApiKey}
+                    onChange={(e) => setUserApiKey(e.target.value)}
+                    placeholder="AIzaSy..."
+                    className="w-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs p-3 rounded-xl border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div className="flex justify-between items-center pt-2">
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem('m4u_chats');
+                      setChats(DEFAULT_CHATS);
+                      setActiveChatId('default-1');
+                      setShowSettingsModal(false);
+                      triggerToast("Chat history cleared");
+                    }}
+                    className="text-xs text-rose-500 hover:underline flex items-center gap-1"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" /> Clear All Chat History
+                  </button>
+
+                  <button
+                    onClick={() => setShowSettingsModal(false)}
+                    className="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-md"
+                  >
+                    Save & Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Crisis Support Modal */}
+          {showSafetyModal && (
+            <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-rose-100 dark:border-slate-800 space-y-5">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-rose-100 dark:bg-rose-950/60 rounded-2xl text-rose-600">
+                      <PhoneCall className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">Immediate Crisis Support</h3>
+                      <p className="text-xs text-slate-500">Free, confidential & available 24/7 for you.</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowSafetyModal(false)}
+                    className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed bg-rose-50/80 dark:bg-rose-950/30 p-3 rounded-xl border border-rose-100 dark:border-rose-900/40">
+                  Mental4u cares deeply about your safety. If you or someone you know is struggling or in distress, help is always available:
+                </p>
+
+                <div className="space-y-2">
+                  {CRISIS_RESOURCES.map((res, i) => (
+                    <a
+                      key={i}
+                      href={res.link}
+                      className="block p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50/50 dark:hover:bg-slate-800 transition"
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-bold text-sm text-slate-800 dark:text-slate-100">{res.name}</span>
+                        <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-950 px-2 py-0.5 rounded-full">
+                          {res.contact}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{res.desc}</p>
+                    </a>
+                  ))}
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    onClick={() => setShowSafetyModal(false)}
+                    className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-200 transition"
+                  >
+                    Back to Mental4u
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
